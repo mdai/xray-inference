@@ -46,8 +46,9 @@ class InferenceXRayDataset(Dataset):
         arr = ds.pixel_array
 
         #Normalize images not having values in [0,255]
-        if arr.dtype != "uint8":
-            arr = 255 - np.uint8((arr - arr.min()) * (255 / (arr.max() - arr.min())))
+        if ds.BitsStored != 8:
+            arr = np.uint8((arr - arr.min()) * (255 / (arr.max() - arr.min())))
+            arr = 255 - arr if ds.PhotometricInterpretation == 'MONOCHROME1' else arr
         img = Image.fromarray(arr).convert("RGB")
         return ds.SOPInstanceUID, img
 
