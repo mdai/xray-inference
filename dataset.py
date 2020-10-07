@@ -1,4 +1,5 @@
 import pydicom
+import numpy as np
 
 from PIL import Image, ImageFile
 from torch.utils.data import Dataset
@@ -42,7 +43,12 @@ class InferenceXRayDataset(Dataset):
     @staticmethod
     def load_input_image(fpath):
         ds = pydicom.dcmread(fpath)
-        img = Image.fromarray(ds.pixel_array).convert("RGB")
+        arr = ds.pixel_array
+
+        #Normalize images not having values in [0,255]
+        if arr.dtype != "uint8":
+            arr = 255 - np.uint8((arr - arr.min()) * (255 / (arr.max() - arr.min())))
+        img = Image.fromarray(arr).convert("RGB")
         return ds.SOPInstanceUID, img
 
     def __len__(self):
