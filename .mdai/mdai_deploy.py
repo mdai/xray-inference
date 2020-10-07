@@ -99,7 +99,11 @@ class MDAIModel:
                 arr = ds.pixel_array
             except:
                 continue
-            img = Image.fromarray(ds.pixel_array).convert("RGB")
+
+            if arr.dtype != "uint8":
+                arr = 255 - np.uint8((arr - arr.min()) * (255 / (arr.max() - arr.min())))
+
+            img = Image.fromarray(arr).convert("RGB")
             img = transform_image(img)
 
             with torch.set_grad_enabled(False):
