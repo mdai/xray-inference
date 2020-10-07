@@ -45,10 +45,13 @@ class InferenceXRayDataset(Dataset):
         ds = pydicom.dcmread(fpath)
         arr = ds.pixel_array
 
-        #Normalize images not having values in [0,255]
-        if ds.BitsStored != 8:
+        # Normalize images not having values in [0,255]
+        if arr.dtype != "uint8":
             arr = np.uint8((arr - arr.min()) * (255 / (arr.max() - arr.min())))
-            arr = 255 - arr if ds.PhotometricInterpretation == 'MONOCHROME1' else arr
+
+        if ds.PhotometricInterpretation == "MONOCHROME1":
+            arr = 255 - arr
+            
         img = Image.fromarray(arr).convert("RGB")
         return ds.SOPInstanceUID, img
 

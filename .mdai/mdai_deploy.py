@@ -100,9 +100,11 @@ class MDAIModel:
             except:
                 continue
 
-            if ds.BitsStored != 8:
+            if arr.dtype != "uint8":
                 arr = np.uint8((arr - arr.min()) * (255 / (arr.max() - arr.min())))
-                arr = 255 - arr if ds.PhotometricInterpretation == 'MONOCHROME1' else arr
+
+            if ds.PhotometricInterpretation == "MONOCHROME1":
+                arr = 255 - arr
 
             img = Image.fromarray(arr).convert("RGB")
             img = transform_image(img)
